@@ -1,0 +1,122 @@
+{
+	"name": "pw-super-tinypng",
+	"displayName": "pw-super-tinypng",
+	"description": "",
+	"version": "0.0.3",
+	"engines": {
+		"vscode": "^1.20.0"
+	},
+	"categories": [
+		"Other"
+	],
+	"activationEvents": [
+		"onCommand:pw-super-tinypng.singleImageCompression",
+		"onCommand:pw-super-tinypng.fileImageCompression",
+		"onCommand:pw-super-tinypng.fileImageDeepCompression",
+		"onCommand:pw-super-tinypng.currentLocalCompression"
+	],
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/XXXX"
+	},
+	"main": "./extension.js",
+	"icon": "images/logo.png",
+	"publisher": "pw-super-tinypng",
+	"contributes": {
+		"menus": {
+			"editor/title": [
+				{
+					"when": "isLinux||isMac||isWindows",
+					"command": "pw-super-tinypng.currentLocalCompression",
+					"group": "navigation"
+				}
+			],
+			"explorer/context": [
+				{
+					"when": "resourceLangId == tinypng_file",
+					"command": "pw-super-tinypng.singleImageCompression",
+					"group": "1_modification"
+				},
+				{
+					"when": "explorerResourceIsFolder",
+					"command": "pw-super-tinypng.fileImageDeepCompression",
+					"group": "1_modification"
+				},
+				{
+					"when": "explorerResourceIsFolder",
+					"command": "pw-super-tinypng.fileImageCompression",
+					"group": "1_modification"
+				}
+			]
+		},
+		"languages": [
+			{
+				"id": "tinypng_file",
+				"extensions": [
+					".png",
+					".jpg",
+					".jpeg"
+				]
+			}
+		],
+		"commands": [
+			{
+				"command": "pw-super-tinypng.currentLocalCompression",
+				"title": "tinypng：currentLocalCompression",
+				"category": "TinyPNG",
+				"icon": {
+					"dark": "images/logo.png",
+					"light": "images/logo.png"
+				}
+			},
+			{
+				"command": "pw-super-tinypng.fileImageDeepCompression",
+				"title": "tinypng：fileImageDeepCompression",
+				"category": "TinyPNG",
+				"icon": {
+					"dark": "images/logo.png",
+					"light": "images/logo.png"
+				}
+			},
+			{
+				"command": "pw-super-tinypng.fileImageCompression",
+				"title": "tinypng：fileImageCompression",
+				"category": "TinyPNG",
+				"icon": {
+					"dark": "images/logo.png",
+					"light": "images/logo.png"
+				}
+			},
+			{
+				"command": "pw-super-tinypng.singleImageCompression",
+				"title": "tinypng：singleImageCompression",
+				"category": "TinyPNG",
+				"icon": {
+					"dark": "images/logo.png",
+					"light": "images/logo.png"
+				}
+			}
+		]
+	},
+	"scripts": {
+		"lint": "eslint .",
+		"pretest": "npm run lint",
+		"test": "node ./test/runTest.js"
+	},
+	"devDependencies": {
+		"@types/glob": "^7.1.3",
+		"@types/mocha": "^8.0.4",
+		"@types/node": "^12.11.7",
+		"@types/vscode": "^1.20.0",
+		"eslint": "^7.15.0",
+		"glob": "^7.1.6",
+		"mocha": "^8.1.3",
+		"typescript": "^4.1.2",
+		"vscode-test": "^1.4.1"
+	},
+	"dependencies": {
+		"@babel/parser": "^7.12.11",
+		"@babel/traverse": "^7.12.12",
+		"array-flatten": "^2.1.2"
+	}
+}
