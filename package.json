@@ -2,7 +2,7 @@
 	"name": "pw-super-tinypng",
 	"displayName": "pw-super-tinypng",
 	"description": "",
-	"version": "0.0.3",
+	"version": "0.0.4",
 	"engines": {
 		"vscode": "^1.20.0"
 	},
@@ -17,20 +17,13 @@
 	],
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/XXXX"
+		"url": "https://github.com/ETTTTT/pw-super-tinypng"
 	},
 	"main": "./extension.js",
 	"icon": "images/logo.png",
 	"publisher": "pw-super-tinypng",
 	"contributes": {
 		"menus": {
-			"editor/title": [
-				{
-					"when": "isLinux||isMac||isWindows",
-					"command": "pw-super-tinypng.currentLocalCompression",
-					"group": "navigation"
-				}
-			],
 			"explorer/context": [
 				{
 					"when": "resourceLangId == tinypng_file",
