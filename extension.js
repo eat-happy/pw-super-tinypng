@@ -2,40 +2,38 @@ const vscode = require("vscode");
 const fs = require("fs");
 const path = require("path");
 const https = require("https");
-const {
-  URL
-} = require("url");
+const { URL } = require("url");
 const traverse = require("@babel/traverse").default;
 const parser = require("@babel/parser");
 const flatten = require("array-flatten");
 
 const exts = [".jpg", ".png", "jpeg"];
 const max = 5200000; // 5MB == 5242848.754299136
-const limitKB = 512000 // 大于500kb的时候提示
+const limitKB = 512000; // 大于500kb的时候提示
 let rcsoutput = null;
 let filesLength = 0;
 let entries = [];
-let DeepLoop = false // 是否需要深度递归
-let limitKBArr = []// 大于limitKB存放的数组 
+let DeepLoop = false; // 是否需要深度递归
+let limitKBArr = []; // 大于limitKB存放的数组
 
 const rootPath = vscode.workspace.rootPath;
 // 求次幂
 function pow1024(num) {
-  return Math.pow(1024, num)
+  return Math.pow(1024, num);
 }
 
 const filterSize = (size) => {
-  if (!size) return '';
-  if (size < pow1024(1)) return size + ' B';
-  if (size < pow1024(2)) return (size / pow1024(1)).toFixed(2) + ' KB';
-  if (size < pow1024(3)) return (size / pow1024(2)).toFixed(2) + ' MB';
-  if (size < pow1024(4)) return (size / pow1024(3)).toFixed(2) + ' GB';
-  return (size / pow1024(4)).toFixed(2) + ' TB'
-}
+  if (!size) return "";
+  if (size < pow1024(1)) return size + " B";
+  if (size < pow1024(2)) return (size / pow1024(1)).toFixed(2) + " KB";
+  if (size < pow1024(3)) return (size / pow1024(2)).toFixed(2) + " MB";
+  if (size < pow1024(4)) return (size / pow1024(3)).toFixed(2) + " GB";
+  return (size / pow1024(4)).toFixed(2) + " TB";
+};
 
-function toPercent(point){
-  var str=Number(point*100).toFixed(2);
-  str+="%";
+function toPercent(point) {
+  var str = Number(point * 100).toFixed(2);
+  str += "%";
   return str;
 }
 
@@ -67,13 +65,14 @@ const getLocalEnv = () => {
 const options = {
   method: "POST",
   hostname: "tinypng.com",
-  path: "/web/shrink",
+  path: "/backend/opt/shrink",
   headers: {
     rejectUnauthorized: false,
     "Postman-Token": Date.now(),
     "Cache-Control": "no-cache",
     "Content-Type": "application/x-www-form-urlencoded",
-    "User-Agent": "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/56.0.2924.87 Safari/537.36",
+    "User-Agent":
+      "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/56.0.2924.87 Safari/537.36",
   },
 };
 
@@ -98,7 +97,7 @@ function fileFilter(file, index) {
       options.headers["X-Forwarded-For"] = getRandomIP();
       fileUpload(file, index);
     } else if (DeepLoop && stats.isDirectory()) {
-      fileList(file)
+      fileList(file);
     }
   });
 }
@@ -140,29 +139,35 @@ function fileUpdate(imgpath, obj, index) {
       fs.writeFile(imgpath, body, "binary", (err) => {
         if (err) return vscode.window.showErrorMessage(err);
         // 将这个成功信息打印在终端内
-        const info = `[${imgpath}] \n 压缩成功，原始大小:${filterSize(obj.input.size)}，压缩大小:${filterSize(obj.output.size)}，优化比例:${toPercent(1-obj.output.ratio)}`;
-        if(obj.output.size > limitKB) {
+        const info = `[${imgpath}] \n 压缩成功，原始大小:${filterSize(
+          obj.input.size
+        )}，压缩大小:${filterSize(obj.output.size)}，优化比例:${toPercent(
+          1 - obj.output.ratio
+        )}`;
+        if (obj.output.size > limitKB) {
           const limitInfo = {
             path: imgpath,
-            size: filterSize(obj.output.size)
-          }
-          limitKBArr.push(limitInfo)
+            size: filterSize(obj.output.size),
+          };
+          limitKBArr.push(limitInfo);
         }
         consoleLogInfo(info);
         if (index === filesLength - 1) {
-          if(limitKBArr&& limitKBArr.length) {
-            consoleLogInfo(`压缩之后的图片大于500kb的有${limitKBArr.length}张分别为：`)
-            limitKBArr.map(item => {
-              const tip = `[${item.path}] \n 压缩后的大小，${filterSize(obj.output.size)}}`
-              consoleLogInfo(tip)
-            })
-  
+          if (limitKBArr && limitKBArr.length) {
+            consoleLogInfo(
+              `压缩之后的图片大于500kb的有${limitKBArr.length}张分别为：`
+            );
+            limitKBArr.map((item) => {
+              const tip = `[${item.path}] \n 压缩后的大小，${filterSize(
+                obj.output.size
+              )}}`;
+              consoleLogInfo(tip);
+            });
           }
-            vscode.window.showInformationMessage("图片压缩完毕");
-            DeepLoop = false
-            limitKBArr = []
+          vscode.window.showInformationMessage("图片压缩完毕");
+          DeepLoop = false;
+          limitKBArr = [];
         }
-       
       });
     });
   });
@@ -203,13 +208,13 @@ const walkingTree = (files) => {
 
 const filterEntry = (localEnv) => {
   let startfiles = [];
-  entries.forEach(filesurl => {
-      if (filesurl.indexOf(localEnv) > -1) {
-          startfiles.push(filesurl);
-      }
+  entries.forEach((filesurl) => {
+    if (filesurl.indexOf(localEnv) > -1) {
+      startfiles.push(filesurl);
+    }
   });
   entries = startfiles;
-}
+};
 
 function activate(context) {
   let singleImage = vscode.commands.registerCommand(
@@ -220,12 +225,12 @@ function activate(context) {
     "pw-super-tinypng.fileImageCompression",
     fileImageCompression
   );
-  
+
   let fileImageDeep = vscode.commands.registerCommand(
     "pw-super-tinypng.fileImageDeepCompression",
     fileImageDeepCompression
   );
-  let localDeep =  vscode.commands.registerCommand(
+  let localDeep = vscode.commands.registerCommand(
     "pw-super-tinypng.currentLocalCompression",
     currentLocalCompression
   );
@@ -238,7 +243,7 @@ function activate(context) {
 // 打印压缩图片的详细信息
 const showConsoleInfo = () => {
   if (!rcsoutput) {
-      rcsoutput = vscode.window.createOutputChannel("super-tinyPng");
+    rcsoutput = vscode.window.createOutputChannel("super-tinyPng");
   }
   rcsoutput.show();
 };
@@ -263,7 +268,7 @@ const fileImageCompression = (folder) => {
 // 深度压缩文件夹内图片压缩
 const fileImageDeepCompression = (folder) => {
   showConsoleInfo();
-  DeepLoop = true
+  DeepLoop = true;
   fileList(folder.fsPath);
 };
 
@@ -279,30 +284,32 @@ const currentLocalCompression = () => {
     vscode.window.showErrorMessage(tip);
     return;
   }
-  entries = []
+  entries = [];
   walkingTree([path.resolve(path.resolve(rootPath, "src"))]).map((file) => {
     if (file.match(/\.(html)$/)) {
-      let entry = file.split(".")[0].split(path.sep).slice(0,-1).join(path.sep)+ path.sep+'img'
+      let entry =
+        file.split(".")[0].split(path.sep).slice(0, -1).join(path.sep) +
+        path.sep +
+        "img";
       entries.push(entry);
     }
   });
-  filterEntry(localEnv)
-  let imgDir = fs.existsSync(entries[0])
-  if(!imgDir) {
+  filterEntry(localEnv);
+  let imgDir = fs.existsSync(entries[0]);
+  if (!imgDir) {
     vscode.window.showErrorMessage(
       `没有找到${localEnv}目录下面的img文件夹，\n
       请右键文件夹执行tinypng：fileImageCompression，\n
       或者右键图片执行tinypng：singleImageCompression`
     );
-    return 
+    return;
   }
 
   showConsoleInfo();
   // 递归执行localEnv下img内所有的文件
-  DeepLoop = true
+  DeepLoop = true;
   fileList(entries[0]);
 };
-
 
 exports.activate = activate;
 
